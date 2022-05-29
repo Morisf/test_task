@@ -6,8 +6,8 @@ services:
     image: mariadb
     environment:
       MYSQL_ROOT_PASSWORD: changeme
-      MYSQL_DATABASE: mybb
-      MYSQL_USER: mybb
+      MYSQL_DATABASE: symfony
+      MYSQL_USER: symfony
       MYSQL_PASSWORD: changeme
     restart: on-failure
     volumes:

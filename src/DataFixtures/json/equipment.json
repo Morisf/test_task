@@ -1,0 +1,37 @@
+[
+  {
+    "title": "Bicycle carrier on the tailgate (including a warning sign required for travel to Italy or Spain)",
+    "price": 400,
+    "oneTimePayment": 0
+  },
+  {
+    "title": "Two additional camping chairs",
+    "price": 2500,
+    "oneTimePayment": 1
+  },
+  {
+    "title": "Additional camping table",
+    "price": 2500,
+    "oneTimePayment": 1
+  },
+  {
+    "title": "Car Seat for Children",
+    "price": 300,
+    "oneTimePayment": 0
+  },
+  {
+    "title": "Rack on the roof (two-bar system for surfboards, boxes, etc.)",
+    "price": 3500,
+    "oneTimePayment": 1
+  },
+  {
+    "title": "Portable camping toilet",
+    "price": 3500,
+    "oneTimePayment": 1
+  },
+  {
+    "title": "Bed linen 1 person (pillow, sheet, blanket)",
+    "price": 2900,
+    "oneTimePayment": 1
+  }
+]
