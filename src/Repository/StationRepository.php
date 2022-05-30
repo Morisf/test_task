@@ -38,4 +38,19 @@ class StationRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function getAvailableStationEquipment(int $stationId)
+    {
+        $query = $this->createQueryBuilder('station');
+
+        return $query->select(
+            'equipment.id, equipment.title, equipment.price, equipment.oneTimePayment, local_equipment.quantity'
+        )
+            ->join('station.localEquipment', 'local_equipment')
+            ->join('local_equipment.equipment', 'equipment')
+            ->where('station.id = :stationId')
+            ->setParameter('stationId', $stationId)
+            ->getQuery()
+            ->getResult();
+    }
 }

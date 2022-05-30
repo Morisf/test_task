@@ -3,9 +3,9 @@
 namespace App\Service;
 
 use App\Entity\Equipment;
-use App\Entity\Iterable\IterableEquipment;
+use App\Entity\Order;
+use App\Entity\Station;
 use App\Exceptions\StationNotFoundException;
-use App\Repository\StationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class EquipmentService
@@ -17,15 +17,17 @@ class EquipmentService
         $this->manger = $manager;
     }
 
-    public function getEquipmentByDay(string $date, int $stationId): array
+    public function getEquipmentForTomorrow(int $stationId): array
     {
-        $station = $this->manger->getRepository(StationRepository::class)->find($stationId);
-        if (!$station) {
-            throw new StationNotFoundException("Stations with id:{$stationId} not found");
-        }
-        $equipment = $station->getLocalEquipment();
+        $result = [];
+        $result['availableEquipment'] = $this->manger
+            ->getRepository(Station::class)
+            ->getAvailableStationEquipment($stationId);
+        $result['orderedEquipment'] = $this->manger
+            ->getRepository(Order::class)
+            ->getOrderedEquipmentByStation($stationId)
+        ;
 
-
-        return $this->manger->getRepository(Equipment::class)->getEquipmentByDay(new \DateTime($date), $station);
+        return $result;
     }
 }

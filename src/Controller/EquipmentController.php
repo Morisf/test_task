@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exceptions\StationNotFoundException;
 use App\Service\EquipmentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,11 +19,10 @@ class EquipmentController extends AbstractController
         $this->equipmentService = $equipmentService;
     }
 
-    #[Route(path: '/equipment/byDay', name: 'app_equipment_filter', methods: [Request::METHOD_POST])]
-    public function getEquipmentByDay(Request $request): Response
+    #[Route(path: '/equipment/forTomorrow/{stationId}', name: 'app_equipment_filter', methods: [Request::METHOD_GET])]
+    public function getEquipmentByDay(int $stationId): Response
     {
-        $requestBody = $request->toArray();
-        $result = $this->equipmentService->getEquipmentByDay($requestBody['date'], $requestBody['station']);
+        $result = $this->equipmentService->getEquipmentForTomorrow($stationId);
 
         return $this->json($result);
     }

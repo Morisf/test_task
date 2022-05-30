@@ -65,11 +65,38 @@ class OrderRepository extends ServiceEntityRepository
                     'location' => $order->getEndLocation(),
                     'equipment' => $equipment
                 ]);
-                $locationEquipment->setQuantity($locationEquipment->getQuantity() + $orderedItems);
+
+                $locationEquipment->setQuantity(
+                    $locationEquipment->getQuantity() + $orderedItems
+                );
+
                 $this->getEntityManager()->persist($locationEquipment);
             }
             $order->setOrderStatus(Order::STATUS_DONE);
         }
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @param int $stationId
+     * @return array
+     */
+    public function getOrderedEquipmentByStation(int $stationId): array
+    {
+        $query = $this->createQueryBuilder('o');
+
+        return $query
+            ->select(
+                'equipment.id, equipment.title, equipment.price, 
+                equipment.oneTimePayment, ordered_equipment.orderedEquipmentQty as quantity'
+            )
+            ->join('o.orderedEquipment', 'ordered_equipment')
+            ->join('ordered_equipment.equipment', 'equipment')
+            ->where('o.startLocation = :station')
+            ->andWhere('o.endDate >= :tomorrow')
+            ->setParameter('station', $stationId)
+            ->setParameter('tomorrow', new \DateTime('tomorrow'))
+            ->getQuery()
+            ->getResult();
     }
 }
