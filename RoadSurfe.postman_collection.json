@@ -1,0 +1,37 @@
+{
+	"info": {
+		"_postman_id": "2b6c33a5-49ac-49bc-bd4b-356c85163977",
+		"name": "RoadSurfe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "192195"
+	},
+	"item": [
+		{
+			"name": "AddOrder",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"startDate\": \"2022-05-30\",\r\n    \"endDate\": \"2022-05-31\",\r\n    \"startLocation\": 3,\r\n    \"endLocation\": 4,\r\n    \"equipment\": [\r\n        {\"id\": 1,\"quantity\": 2},\r\n        {\"id\": 2,\"quantity\": 2},\r\n        {\"id\": 3,\"quantity\": 2}\r\n    ],\r\n    \"camperId\": null\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/order",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"order"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
