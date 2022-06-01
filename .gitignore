@@ -8,8 +8,9 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
-.idea/
 .env
+.idea/
+mariadb/
 
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache

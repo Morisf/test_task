@@ -1,0 +1,50 @@
+[
+  {
+    "brand": "Volkswagen",
+    "model": "T6.1 California Ocean",
+    "power": 150,
+    "isManualGear": 0
+  },
+  {
+    "brand": "Volkswagen",
+    "model": "T6.1 California Beach",
+    "power": 150,
+    "isManualGear": 1
+  },
+  {
+    "brand": "Mercedes",
+    "model": "Marco Polo",
+    "power": 163,
+    "isManualGear": 1
+  },
+  {
+    "brand": "Ford",
+    "model": "Camper Cabin",
+    "power": 170,
+    "isManualGear": 0
+  },
+  {
+    "brand": "Ford",
+    "model": "Camper Cabin Deluxe",
+    "power": 170,
+    "isManualGear": 1
+  },
+  {
+    "brand": "Fiat",
+    "model": "Couple Cottage",
+    "power": 140,
+    "isManualGear": 0
+  },
+  {
+    "brand": "Fiat",
+    "model": "Family Finca",
+    "power": 170,
+    "isManualGear": 0
+  },
+  {
+    "brand": "Fiat",
+    "model": "Camper Castle",
+    "power": 140,
+    "isManualGear": 0
+  }
+]

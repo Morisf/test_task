@@ -1,0 +1,26 @@
+[
+  {
+    "country": "DE",
+    "city": "Dusseldorf"
+  },
+  {
+    "country": "DE",
+    "city": "Berlin"
+  },
+  {
+    "country": "DE",
+    "city": "Munich"
+  },
+  {
+    "country": "AU",
+    "city": "Graz"
+  },
+  {
+    "country": "AU",
+    "city": "Vienna"
+  },
+  {
+    "country": "BE",
+    "city": "Brussels"
+  }
+]
