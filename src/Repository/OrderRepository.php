@@ -85,7 +85,7 @@ class OrderRepository extends ServiceEntityRepository
     {
         $query = $this->createQueryBuilder('o');
 
-        return $query
+        $result = $query
             ->select(
                 'equipment.id, equipment.title, equipment.price, 
                 equipment.oneTimePayment, ordered_equipment.orderedEquipmentQty as quantity'
@@ -98,5 +98,7 @@ class OrderRepository extends ServiceEntityRepository
             ->setParameter('tomorrow', new \DateTime('tomorrow'))
             ->getQuery()
             ->getResult();
+        dump($result);exit;
+        return $result;
     }
 }

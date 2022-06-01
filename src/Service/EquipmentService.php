@@ -15,6 +15,10 @@ class EquipmentService
         $this->manger = $manager;
     }
 
+    /**
+     * @param int $stationId
+     * @return array
+     */
     public function getEquipmentForTomorrow(int $stationId): array
     {
         $result['availableEquipment'] = $this->manger

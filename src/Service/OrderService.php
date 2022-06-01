@@ -9,11 +9,10 @@ use App\Entity\Order;
 use App\Entity\OrderEquipment;
 use App\Entity\Station;
 use App\Exceptions\EquipmentNotFoundException;
+use App\Exceptions\KeyNotFoundException;
 use App\Exceptions\NotEnoughEquipmentException;
 use App\Exceptions\StationNotFoundException;
-use App\Repository\EquipmentRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
 
 class OrderService
 {
@@ -34,64 +33,27 @@ class OrderService
      * @return Order
      * @throws EquipmentNotFoundException
      * @throws NotEnoughEquipmentException
-     * @throws StationNotFoundException
+     * @throws StationNotFoundException|KeyNotFoundException
      */
     public function createOrder(array $data): Order
     {
-        [
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'startLocation' => $startLocation,
-            'endLocation' => $endLocation,
-            'equipment' => $equipments,
-            'camperId' => $camperId,
-        ] = $data;
+        try {
+            [
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'startLocation' => $startLocation,
+                'endLocation' => $endLocation,
+                'equipment' => $equipments,
+                'camperId' => $camperId,
+            ] = $data;
+        } catch (\Exception $exception) {
+            throw new KeyNotFoundException($exception->getMessage());
+        }
 
-        $order = $this->storeOrder($startDate,$endDate,$startLocation,$endLocation,$equipments,$camperId);
+        $order = $this->storeOrder($startDate, $endDate, $startLocation, $endLocation, $equipments, $camperId);
         $this->updateQuantity($startLocation, $equipments);
 
         return $order;
-    }
-
-    private function locationEquipmentEnough(Station $startLocation, int $quantity): bool
-    {
-        $locationEquipmentRepository = $this->entityManager->getRepository(LocationEquipment::class);
-        $locationEquipment = $locationEquipmentRepository->findOneBy([
-            'location' => $startLocation
-        ]);
-
-        return ($locationEquipment && $locationEquipment->getQuantity() >= $quantity);
-    }
-
-    /**
-     * @param mixed $equipments
-     * @param EntityRepository|EquipmentRepository $equipmentRepositoryRepository
-     * @param mixed $startStation
-     * @param Order $order
-     * @return void
-     * @throws EquipmentNotFoundException
-     * @throws NotEnoughEquipmentException
-     */
-    private function setOrderEquipment(
-        mixed $equipments,
-        EntityRepository|EquipmentRepository $equipmentRepositoryRepository,
-        mixed $startStation,
-        Order $order
-    ): void {
-        foreach ($equipments as $item) {
-            $equipment = $equipmentRepositoryRepository->find($item['id']);
-            if (!$equipment) {
-                throw new EquipmentNotFoundException();
-            }
-            if (!$this->locationEquipmentEnough($startStation, $item['quantity'])) {
-                throw new NotEnoughEquipmentException();
-            }
-            $orderedEquipment = new OrderEquipment();
-            $orderedEquipment->setOrders($order);
-            $orderedEquipment->setEquipment($equipment);
-            $orderedEquipment->setOrderedEquipmentQty($item['quantity']);
-            $this->entityManager->persist($orderedEquipment);
-        }
     }
 
     /**
@@ -110,7 +72,6 @@ class OrderService
     ): Order {
         $stationRepository = $this->entityManager->getRepository(Station::class);
         $camperRepository = $this->entityManager->getRepository(Camper::class);
-        $equipmentRepositoryRepository = $this->entityManager->getRepository(Equipment::class);
 
         $startStation = $stationRepository->find($startLocation);
         $endStation = $stationRepository->find($endLocation);
@@ -119,18 +80,18 @@ class OrderService
             throw new StationNotFoundException("Station with id:{$startStation}");
         }
 
-        if(!$endStation) {
+        if (!$endStation) {
             throw new StationNotFoundException("Station with id:{$endStation}");
         }
 
         $order = new Order();
         $order->setStartDate((new \DateTime($startDate)));
         $order->setEndDate((new \DateTime($endDate)));
-        $order->setStartLocation($stationRepository->find($startLocation));
-        $order->setEndLocation($stationRepository->find($endLocation));
-        $this->setOrderEquipment($equipments, $equipmentRepositoryRepository, $startStation, $order);
+        $order->setStartLocation($startStation);
+        $order->setEndLocation($endStation);
+        $this->setOrderEquipment($equipments, $startStation, $order);
 
-        if($camperId) {
+        if ($camperId) {
             $order->setCamper($camperRepository->find($camperId));
         }
 
@@ -140,6 +101,55 @@ class OrderService
         return $order;
     }
 
+    /**
+     * @param Station $startLocation
+     * @param int $quantity
+     * @return bool
+     */
+    private function locationEquipmentEnough(Station $startLocation, int $quantity): bool
+    {
+        $locationEquipmentRepository = $this->entityManager->getRepository(LocationEquipment::class);
+
+        $locationEquipment = $locationEquipmentRepository->findOneBy([
+            'location' => $startLocation
+        ]);
+
+        return ($locationEquipment && $locationEquipment->getQuantity() >= $quantity);
+    }
+
+    /**
+     * @param array $equipments
+     * @param Station $startStation
+     * @param Order $order
+     * @return void
+     * @throws EquipmentNotFoundException
+     * @throws NotEnoughEquipmentException
+     */
+    private function setOrderEquipment(
+        array $equipments,
+        Station $startStation,
+        Order $order
+    ): void {
+        $equipmentRepositoryRepository = $this->entityManager->getRepository(Equipment::class);
+
+        foreach ($equipments as $item) {
+            $equipment = $equipmentRepositoryRepository->find($item['id']);
+
+            if (!$equipment) {
+                throw new EquipmentNotFoundException();
+            }
+
+            if (!$this->locationEquipmentEnough($startStation, $item['quantity'])) {
+                throw new NotEnoughEquipmentException();
+            }
+            $orderedEquipment = new OrderEquipment();
+            $orderedEquipment->setOrders($order);
+            $orderedEquipment->setEquipment($equipment);
+            $orderedEquipment->setOrderedEquipmentQty($item['quantity']);
+            $this->entityManager->persist($orderedEquipment);
+        }
+    }
+
     private function updateQuantity(
         int $startLocation,
         array $equipments,
@@ -147,8 +157,7 @@ class OrderService
         $stationRepository = $this->entityManager->getRepository(Station::class);
         $station = $stationRepository->find($startLocation);
         foreach ($station->getLocalEquipment() as $equipment) {
-            array_walk($equipments, function ($item) use ($equipment)
-            {
+            array_walk($equipments, function ($item) use ($equipment) {
                 if ($item['id'] === $equipment->getEquipment()->getId()) {
                     $equipment->setQuantity($equipment->getQuantity() - $item['quantity']);
                     $this->entityManager->persist($equipment);
